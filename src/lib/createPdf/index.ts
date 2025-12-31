@@ -1,50 +1,17 @@
 import { PDFDocument, StandardFonts, rgb, PDFFont, PageSizes } from 'pdf-lib';
+import { PdfDocumentSettings } from './pdfConfig';
+import processText, { TextLine } from '../processText';
 
-export interface PdfOptions {
-  fontSize?: number;
-  color?: [number, number, number];
-  margin?: number;
-  lineHeight?: number;
-  maxWidth?: number;
-  pageSize?: [number, number];
+export interface createPdfOptions extends PdfDocumentSettings {
+  text?: string;
 }
 
-type TextLine = {
-  chars: string;
-  x: number;
-  y: number;
-  size: number;
-  font: PDFFont;
+export const defaultOptions: PdfDocumentSettings = {
+  page_size: 'A4',
+  margin: { top: 73, bottom: 72, left: 72, right: 72 },
+  font_family: 'Courier',
+  file_name: 'my-document'
 };
-
-const processText = (
-  text: string,
-  textWidth: number,
-  textHeight: number,
-  font: PDFFont,
-  fontSize: number,
-  yPosition: number,
-  margin: number,
-): Array<TextLine> => {
-  const lines: Array<TextLine> = [];
-  const words = text.split(' ');
-  let line = '';
-
-  for (const word of words) {
-    const tempLine = line + word + ' ';
-    const tempLineWidth = font.widthOfTextAtSize(tempLine, fontSize);
-
-    if (tempLineWidth > textWidth && line.length > 0) {
-      lines.push({ chars: line, x: margin, y: yPosition, size: fontSize, font });
-      line = word + ' ';
-      yPosition -= textHeight;
-    } else {
-      line = tempLine;
-    }
-  }
-  lines.push({ chars: line, x: margin, y: yPosition, size: fontSize, font });
-  return lines;
-}
 
 const addPage = (pdf: PDFDocument, pageSize: [number, number], margin: number) => {
   const page = pdf.addPage(pageSize);
@@ -62,33 +29,42 @@ const addPage = (pdf: PDFDocument, pageSize: [number, number], margin: number) =
 const processMetadata = () => {}
 
 async function createPdf(
-  text: string,
-  options: PdfOptions = {},
+  options: createPdfOptions,
 ): Promise<Uint8Array> {
-  const { fontSize = 12, color = [0,0,0], margin = 50, lineHeight = 14, pageSize = PageSizes.A4 } = options;
+  try {
+    const {
+      page_size = defaultOptions.page_size,
+      margin = defaultOptions.margin,
+      font_family = defaultOptions.font_family,
+      file_name = defaultOptions.file_name,
+    } = options;
 
-  const pdf = await PDFDocument.create();
-  const page = pdf.addPage(pageSize);
-  const { width, height } = page.getSize();
+    const pdf = await PDFDocument.create();
+    const page = pdf.addPage(PageSizes[page_size]);
+    const { width, height } = page.getSize();
 
-  const font = await pdf.embedFont(StandardFonts.Helvetica);
-  const textWidth = width - (margin * 2);
-  const yPosition = height - margin;
+    const font = await pdf.embedFont(StandardFonts.Helvetica);
+    const textWidth = width - (margin.left * 2);
+    const yPosition = height - margin.top;
 
-  // process text to create text lines
-  const lines = processText(text, textWidth, lineHeight, font, fontSize, yPosition, margin);
+    // process text to create text lines
+    if (options.text) {
+      const lines = processText(options.text, textWidth, 14, font, 12, yPosition, margin.top);
 
-  lines.forEach((line: TextLine) => {
-    page.drawText(line.chars, {
-      x: line.x,
-      y: line.y,
-      size: line.size,
-      font: line.font,
-    });
-  });
-
-  const bytes = await pdf.save();
-  return bytes;
+      lines.forEach((line: TextLine) => {
+        page.drawText(line.chars, {
+          x: line.x,
+          y: line.y,
+          size: line.size,
+          font: line.font,
+        });
+      });
+    }
+    const bytes = await pdf.save();
+    return bytes;
+  } catch (e) {
+    throw new Error('Unable to Create PDF Document');
+  }
 }
 
 export default createPdf;

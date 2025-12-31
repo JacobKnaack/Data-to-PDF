@@ -10,7 +10,7 @@ export interface PdfDocumentSettings {
     left: number,
     right: number,
   },
-  font_family: keyof StandardFonts;
+  font_family: string;
   file_name: string;
 }
 

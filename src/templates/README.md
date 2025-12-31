@@ -34,11 +34,12 @@ A document that lists information about services and prices between someone maki
     },
     "line_items": [
         {
+            "name": "ITEM_NAME",
             "desciption": "ITEM_DESCRIPTION",
             "quantity": 10,
             "unit_price": 10,
             "total": 10,
-            "adjustments: [
+            "adjustments": [
                 {
                     "description": "ADJUSTMENT_DESCRIPTION",
                     "amount": 5,
@@ -50,7 +51,7 @@ A document that lists information about services and prices between someone maki
         "subtotal": 10,
         "tax_rate": 0.1,
         "tax_amount": 1,
-        "grand_total: 10.1
+        "grand_total": 10.1
     },
     "payment_methods": [
         {
