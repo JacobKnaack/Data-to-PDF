@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { fromBuffer } from '../test/utility/readPdf';
 
 import request from 'supertest';
 import server from './server';
@@ -61,8 +62,13 @@ describe('PDF Generation Service', () => {
       .send(invoiceTemplate)
       .set('Content-Type', 'application/json');
 
+    const { text } = await fromBuffer(Buffer.from(response.body));
+
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toBe('application/pdf');
+    expect(text).toContain('Test Name');
+    expect(text).toContain('Test Client');
+    expect(text).toContain('Test Line Item');
   });
 });
 
