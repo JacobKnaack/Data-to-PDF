@@ -5,36 +5,59 @@ export type TextLine = {
   x: number;
   y: number;
   size: number;
-  font: PDFFont;
+};
+
+export interface TextOptions {
+  width: number,
+  height: number,
+  font: PDFFont,
+  fontSize: number,
+  startY: number,
+  margin: number,
 };
 
 function processText(
   text: string,
-  textWidth: number,
-  textHeight: number,
-  font: PDFFont,
-  fontSize: number,
-  yPosition: number,
-  margin: number,
+  options: TextOptions,
 ): Array<TextLine> {
-  const lines: Array<TextLine> = [];
-  const words = text.split(' ');
-  let line = '';
+  const lines: string[] = [];
+  const words = text.trim().split(/\s+/);
+  const {
+    width,
+    height,
+    font,
+    fontSize,
+    startY,
+    margin,
+  } = options;
+
+  let current = '';
+
+  const fits = (candidate: string) => Boolean(font.widthOfTextAtSize(candidate, fontSize) <= width);
 
   for (const word of words) {
-    const tempLine = line + word + ' ';
-    const tempLineWidth = font.widthOfTextAtSize(tempLine, fontSize);
+    const next: string = current.length === 0 ? word : `${current} ${word}`;
 
-    if (tempLineWidth > textWidth && line.length > 0) {
-      lines.push({ chars: line, x: margin, y: yPosition, size: fontSize, font });
-      line = word + ' ';
-      yPosition -= textHeight;
+    if (fits(next)) {
+      current = next;
     } else {
-      line = tempLine;
+      if (current.length > 0) {
+        lines.push(current);
+      }
+      current = word;
     }
   }
-  lines.push({ chars: line, x: margin, y: yPosition, size: fontSize, font });
-  return lines;
+
+  if (current.length > 0) {
+    lines.push(current);
+  }
+
+  return lines.map((chars, index) => ({
+    chars,
+    x: margin,
+    y: startY - index * height,
+    size: fontSize,
+  }));
 }
 
 export default processText;

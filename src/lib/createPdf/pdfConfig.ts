@@ -11,6 +11,7 @@ export interface PdfDocumentSettings {
     right: number,
   },
   font_family: string;
+  font_size: number;
   file_name: string;
 }
 
