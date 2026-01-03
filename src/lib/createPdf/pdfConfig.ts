@@ -1,4 +1,4 @@
-import { StandardFonts, PDFDocument, PageSizes } from 'pdf-lib';
+import { StandardFonts, PDFDocument, PageSizes, PDFFont, PDFPage } from 'pdf-lib';
 
 export type PdfPageSize = 'A4' | 'Letter' | 'Legal';
 
@@ -15,21 +15,41 @@ export interface PdfDocumentSettings {
   file_name: string;
 }
 
-export async function configure(settings: PdfDocumentSettings): Promise<PDFDocument> {
+export interface DocumentConfiguration {
+  pdf: PDFDocument;
+  font: PDFFont,
+  page: PDFPage,
+  content: {
+    width: number;
+    height: number;
+    startX: number;
+    startY: number;
+  };
+}
 
-  const doc = await PDFDocument.create();
+export async function configure(settings: PdfDocumentSettings): Promise<DocumentConfiguration> {
 
-  await doc.embedFont(settings.font_family as string);
-  doc.setTitle(settings.file_name);
+  const pdf = await PDFDocument.create();
 
-  const size = PageSizes[settings.page_size];
-  const page = doc.addPage(size);
+  const font = await pdf.embedFont(settings.font_family as string);
+  pdf.setTitle(settings.file_name);
 
-  // TODO: need to use use margin to prevent overflow
+  const page = pdf.addPage(PageSizes[settings.page_size]);
   const { width, height } = page.getSize();
+
   const contentWidth = width - settings.margin.left - settings.margin.right;
   const contentHeight = height - settings.margin.top - settings.margin.bottom;
 
-  return doc;
+  return {
+    pdf,
+    font,
+    page,
+    content: {
+      width: contentWidth,
+      height: contentHeight,
+      startX: settings.margin.left,
+      startY: height - settings.margin.top,
+    }
+  };
 };
 

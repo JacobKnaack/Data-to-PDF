@@ -1,8 +1,8 @@
 import { PDFDocument, StandardFonts, rgb, PDFFont, PDFPage, PageSizes } from 'pdf-lib';
 import { Document, Text, Invoice } from '../../templates';
-import { PdfDocumentSettings } from './pdfConfig';
+import { PdfDocumentSettings, configure, DocumentConfiguration } from './pdfConfig';
 import buildInvoice from './buildInvoice';
-import processText, { TextLine, TextOptions } from '../processText';
+import processText, { TextLine, TextOptions, buildTextOptions } from '../processText';
 
 export interface createPdfOptions extends Document {}
 
@@ -28,35 +28,16 @@ const addPage = (pdf: PDFDocument, pageSize: [number, number], margin: number) =
 
 // TODO: Process Page Title, Author, Subject, and Keywords
 
-const buildTextOptions = (page: PDFPage, settings: PdfDocumentSettings, font: PDFFont): TextOptions => {
-  const { margin } = settings;
-  const { width, height } = page.getSize();
-
-  const usableWidth: number = width - margin.left - margin.right;
-  const startY: number = height - margin.top;
-  const fontSize: number = settings.font_size || settings.font_size;
-  const lineHeight: number = Math.round(fontSize * 1.2);
-
-  return {
-    width: usableWidth,
-    height: lineHeight,
-    font,
-    fontSize,
-    startY,
-    margin: margin.left,
-  }
-}
-
-const createTextDocument = (document: Text, options: TextOptions, page: PDFPage, font: PDFFont): void => {
+const createTextLines = (text: string, options: TextOptions, config: DocumentConfiguration): void => {
   try {
-    const lines = processText(document.text, options);
+    const lines = processText(text, options);
 
     lines.forEach((line: TextLine) => {
-      page.drawText(line.chars, {
+      config.page.drawText(line.chars, {
         x: line.x,
         y: line.y,
         size: line.size,
-        font,
+        font: config.font,
       });
     });
   } catch {
@@ -64,36 +45,23 @@ const createTextDocument = (document: Text, options: TextOptions, page: PDFPage,
   }
 }
 
-async function createPdf(
-  options: createPdfOptions,
-): Promise<Uint8Array> {
+async function createPdf(options: createPdfOptions): Promise<Uint8Array> {
   try {
     const documentSettings: PdfDocumentSettings = { ...defaultSettings, ...options.document_settings };
-    const {
-      page_size,
-      margin,
-      font_family,
-      font_size,
-      file_name,
-    } = documentSettings;
+    const config = await configure(documentSettings);
 
-    const pdf = await PDFDocument.create();
-    const page = pdf.addPage(PageSizes[page_size]);
-    const { width, height } = page.getSize();
-
-    const font = await pdf.embedFont(StandardFonts.Helvetica);
-    const textWidth = width - (margin.left * 2);
-    const startY = height - margin.top;
-    const textOptions = buildTextOptions(page, documentSettings, font);
+    const textOptions = buildTextOptions(config.page, documentSettings, config.font);
 
     if (options.document_type === 'invoice')  {
-      console.log('Creating Invoice');
+      const invoiceText = buildInvoice(options as Invoice, config);
+      console.log('Creating Invoice Text', invoiceText);
     }
 
     if (options.document_type === 'text') {
-      createTextDocument(options as Text, textOptions, page, font);
+      const { text } = options as Text;
+      createTextLines(text, textOptions, config);
     }
-    const bytes = await pdf.save();
+    const bytes = await config.pdf.save();
     return bytes;
   } catch (e) {
     console.log('createPDF error: ', e);

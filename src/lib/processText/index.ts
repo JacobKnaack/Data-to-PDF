@@ -1,4 +1,5 @@
-import { PDFFont } from 'pdf-lib';
+import { PDFFont, PDFPage } from 'pdf-lib';
+import { PdfDocumentSettings } from '../createPdf/pdfConfig';
 
 export type TextLine = {
   chars: string;
@@ -15,6 +16,26 @@ export interface TextOptions {
   startY: number,
   margin: number,
 };
+
+export const buildTextOptions = (page: PDFPage, settings: PdfDocumentSettings, font: PDFFont): TextOptions => {
+  const { margin } = settings;
+  const { width, height } = page.getSize();
+
+  const usableWidth: number = width - margin.left - margin.right;
+  const startY: number = height - margin.top;
+  const fontSize: number = settings.font_size || settings.font_size;
+  const lineHeight: number = Math.round(fontSize * 1.2);
+
+  return {
+    width: usableWidth,
+    height: lineHeight,
+    font,
+    fontSize,
+    startY,
+    margin: margin.left,
+  }
+}
+
 
 function processText(
   text: string,
