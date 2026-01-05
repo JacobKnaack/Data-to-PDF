@@ -22,7 +22,7 @@ export interface InvoiceLineItem {
   quantity: number;
   unit_price: number;
   total: number;
-  adjustments: LineItemAdjustment[];
+  adjustments?: LineItemAdjustment[];
 }
 
 export interface PaymentMethod {
@@ -56,7 +56,7 @@ export interface Invoice extends Document {
     tax_amount: number;
     grand_total: number;
   };
-  payment_methods: PaymentMethod[];
+  payment_methods?: PaymentMethod[];
 };
 
 export interface Form extends Document {

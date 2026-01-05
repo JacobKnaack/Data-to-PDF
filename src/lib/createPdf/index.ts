@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts, rgb, PDFFont, PDFPage, PageSizes } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 import { Document, Text, Invoice } from '../../templates';
 import { PdfDocumentSettings, configure, DocumentConfiguration } from './pdfConfig';
 import buildInvoice from './buildInvoice';
@@ -54,7 +54,9 @@ async function createPdf(options: createPdfOptions): Promise<Uint8Array> {
 
     if (options.document_type === 'invoice')  {
       const invoiceText = buildInvoice(options as Invoice, config);
-      console.log('Creating Invoice Text', invoiceText);
+      invoiceText.forEach((options) => {
+        createTextLines(options.text, options, config);
+      });
     }
 
     if (options.document_type === 'text') {

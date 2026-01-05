@@ -2,10 +2,11 @@ import { describe, it, expect } from 'vitest';
 import { fromBuffer } from '../test/utility/readPdf';
 
 import request from 'supertest';
+import { Invoice } from './templates/';
 import server from './server';
 
 describe('PDF Generation Service', () => {
-  it('Should return a 200 with a PDF buffer', async () => {
+  it('Should return a 200 with a valid PDF buffer', async () => {
     const rootTemplate = {
       document_type: 'text',
       text: 'Here is some test text',
@@ -16,17 +17,21 @@ describe('PDF Generation Service', () => {
       .send(rootTemplate)
       .set('Content-Type', 'application/json');
 
+    const { text } = await fromBuffer(Buffer.from(response.body));
+
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toBe('application/pdf');
 
     const isPDF = response.body.toString('utf8', 0,4) === '%PDF';
     expect(isPDF).toBe(true);
+    expect(text).toContain('Here is some test text');
   });
 
   it('should generate a valid invoice PDF from a JSON template', async () => {
-    const invoiceTemplate = {
+    const invoiceTemplate: Invoice = {
       document_type: 'invoice',
       document_settings: {
+        font_size: 12,
         page_size: 'A4',
         margin: { top: 50, bottom: 50, left: 50, right: 50 },
         font_family: 'Helvetica',
@@ -49,7 +54,7 @@ describe('PDF Generation Service', () => {
         unit_price: 10,
         total: 10,
       }],
-      totals: {
+      total: {
         subtotal: 10,
         tax_rate: 0.1,
         tax_amount: 1,
