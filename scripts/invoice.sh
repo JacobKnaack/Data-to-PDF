@@ -11,14 +11,14 @@ OUTPUT="$2"
 
 # Example JSON payload
 
-JSON=`{
+JSON='{
     "document_type": "invoice",
     "document_settings": {
         "page_size": "A4",
         "margin": { "top": 72, "bottom": 72, "left": 72, "right": 72 },
         "font_family": "Helvetica",
         "font_size": 12,
-        "file_name": "invoice.pdf"
+        "file_name": "acme_invoice.pdf"
     },
     "company": {
         "name": "Acme Corp"
@@ -41,7 +41,7 @@ JSON=`{
         "tax_amount": 0.2,
         "grand_total": 2.2
     }
-}`
+}'
 
 # Send POST Request and save PDF
 
@@ -50,5 +50,5 @@ curl -X POST "$URL" \
     --data "$JSON" \
     --output "$OUTPUT"
 
-echo "PDF saveed to $OUTPUT"
+echo "PDF saved to $OUTPUT"
 
