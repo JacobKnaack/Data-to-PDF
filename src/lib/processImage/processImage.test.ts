@@ -7,13 +7,12 @@ describe('processImage', () => {
     const pdf = await PDFDocument.create();
     const page = await pdf.addPage([600, 800]);
 
-    await processImage('https://placehold.co/400.png', {
+    const values = await processImage('https://placehold.co/400.png', {
       pdf,
       page,
-      x: 200,
-      y: 200,
     });
 
+    page.drawImage(values.image, { x: 200, y: 200, width: values.width, height: values.height });
     const bytes = await pdf.save();
 
     const pdfString = Buffer.from(bytes).toString('latin1');
@@ -25,13 +24,12 @@ describe('processImage', () => {
     const pdf = await PDFDocument.create();
     const page = await pdf.addPage([600, 800]);
 
-    await processImage('https://placehold.co/400.jpg', {
+    const values = await processImage('https://placehold.co/400.jpg', {
       pdf,
       page,
-      x: 200,
-      y: 200,
     });
 
+    page.drawImage(values.image, { x: 200, y: 200, width: values.width, height: values.height });
     const bytes = await pdf.save();
 
     const pdfString = Buffer.from(bytes).toString('latin1');

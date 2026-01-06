@@ -40,6 +40,19 @@ Converts JSON object into a downloadable PDF file.
 
 ```json
 {
+    "document_type": "text",
+    "document_settings": {
+        "page_size": "A4",
+        "margin": {
+            "top": 50,
+            "bottom": 50,
+            "left": 50,
+            "right": 50
+        },
+        "font_family": "Helvetica",
+        "font_size": 12,
+        "file_name": "My_Document"
+    }, 
     "text": "Text you would like in your document."
 }
 ``` 
@@ -48,7 +61,7 @@ Converts JSON object into a downloadable PDF file.
 
 ```
 200 OK
-Content-Type: applicatoin/pdf
+Content-Type: application/pdf
 Body: Binary PDF Stream
 ```
 

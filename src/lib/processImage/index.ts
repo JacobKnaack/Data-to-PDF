@@ -1,18 +1,23 @@
 import { PDFDocument, PDFPage, PDFImage } from 'pdf-lib';
 
-interface ImageOptions {
+export interface ImageOptions {
   page: PDFPage,
   pdf: PDFDocument,
-  x: number;
-  y: number;
   width?: number;
   height?: number;
 };
 
+export interface ImageValues {
+  image: PDFImage;
+  width: number;
+  height: number;
+}
+
 export default async function processImage(
   url: string,
   options: ImageOptions,
-): Promise<void> {
+): Promise<ImageValues> {
+
   const response = await fetch(url);
   const buffer = await response.arrayBuffer();
   const imageBytes = new Uint8Array(buffer);
@@ -35,11 +40,10 @@ export default async function processImage(
   const imgWidth = options.width || embeddedImage.width;
   const imgHeight = options.height || embeddedImage.height;
 
-  options.page.drawImage(embeddedImage, {
-    x: options.x,
-    y: options.y,
+  return {
+    image: embeddedImage,
     width: imgWidth,
     height: imgHeight,
-  });
+  }
 }
 

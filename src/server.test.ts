@@ -75,5 +75,13 @@ describe('PDF Generation Service', () => {
     expect(text).toContain('Test Client');
     expect(text).toContain('Test Line Item');
   });
+
+  it('should return a 404 from an unknown resource', async () => {
+    const response = await request(server)
+      .get('/');
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBeTruthy();
+  });
 });
 

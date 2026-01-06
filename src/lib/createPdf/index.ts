@@ -1,8 +1,9 @@
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, PDFPage, PDFImage } from 'pdf-lib';
 import { Document, Text, Invoice } from '../../templates';
 import { PdfDocumentSettings, configure, DocumentConfiguration } from './pdfConfig';
 import buildInvoice from './buildInvoice';
 import processText, { TextLine, TextOptions, buildTextOptions } from '../processText';
+import processImage, { ImageOptions, ImageValues } from '../processImage';
 
 export interface createPdfOptions extends Document {}
 
@@ -25,6 +26,21 @@ const addPage = (pdf: PDFDocument, pageSize: [number, number], margin: number) =
 };
 
 // TODO: multipage support / Images & Logos / Colors & Styling
+
+const createImageBlocks = async (url: string, options: ImageOptions, config: DocumentConfiguration) => {
+  try {
+    const imageValues: ImageValues = await processImage(url, options);
+
+    config.page.drawImage(imageValues.image, {
+      x: config.content.startX,
+      y: config.content.startY,
+      width: options.width,
+      height: options.height,
+    });
+  } catch {
+    throw new Error('Invalid Image Options');
+  }
+}
 
 // TODO: Process Page Title, Author, Subject, and Keywords
 
@@ -56,6 +72,15 @@ async function createPdf(options: createPdfOptions): Promise<Uint8Array> {
       const invoiceText = buildInvoice(options as Invoice, config);
       invoiceText.forEach((options) => {
         if (options.text) createTextLines(options.text, options, config);
+        if (options.url) {
+          const imageOptions: ImageOptions = {
+            pdf: config.pdf,
+            page: config.page,
+            width: config.content.width,
+            height: config.content.height,
+          }
+          createImageBlocks(options.url, imageOptions, config);
+        }
       });
     }
 
