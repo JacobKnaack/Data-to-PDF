@@ -2,20 +2,33 @@ import { Invoice } from '../../templates';
 import { TextOptions } from '../processText';
 import { DocumentConfiguration } from './pdfConfig';
 
-interface InvoiceText extends TextOptions {
-  text: string;
+interface InvoiceContent extends TextOptions {
+  text?: string;
+  url?: string;
 }
 
 export default function buildInvoice(
   invoice: Invoice,
   config: DocumentConfiguration,
-): InvoiceText[] {
-  const invoiceText: InvoiceText[] = [];
+): InvoiceContent[] {
+  const invoiceContent: InvoiceContent[] = [];
   const { font, content } = config;
   const { width, height, startX, startY } = content;
 
   let cursorY = startY;
-
+  const addImage = (url: string, margin: number = 12) => {
+    const imageValues = {
+      url,
+      width,
+      font,
+      fontSize: 0,
+      height,
+      startY: cursorY,
+      margin,
+    }
+    invoiceContent.push(imageValues);
+    cursorY -= margin;
+  };
   const addText = (text: string, fontSize: number, margin: number = 12): void => {
     const textValues = {
       text,
@@ -26,13 +39,15 @@ export default function buildInvoice(
       startY: cursorY,
       margin,
     }
-    invoiceText.push(textValues);
+    invoiceContent.push(textValues);
     cursorY -= fontSize + margin;
   }
   addText(invoice.company.name, 14);
   if (invoice.company.address) addText(invoice.company.address, 12);
-  // TODO: need utility to handle images
-  // if (invoice.company.logo_url) {}
+  if (invoice.company.logo_url) {
+    addImage(invoice.company.logo_url);
+  }
+
   addText(invoice.client.name, 14);
   if (invoice.client.address) addText(invoice.client.address, 12);
   if (invoice.client.email) addText(invoice.client.email, 12);
@@ -52,6 +67,6 @@ export default function buildInvoice(
     });
   }
 
-  return invoiceText;
+  return invoiceContent;
 }
 

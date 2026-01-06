@@ -55,7 +55,7 @@ async function createPdf(options: createPdfOptions): Promise<Uint8Array> {
     if (options.document_type === 'invoice')  {
       const invoiceText = buildInvoice(options as Invoice, config);
       invoiceText.forEach((options) => {
-        createTextLines(options.text, options, config);
+        if (options.text) createTextLines(options.text, options, config);
       });
     }
 
