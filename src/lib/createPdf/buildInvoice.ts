@@ -42,28 +42,41 @@ export default function buildInvoice(
     invoiceContent.push(textValues);
     cursorY -= fontSize + margin;
   }
-  addText(invoice.company.name, 14);
-  if (invoice.company.address) addText(invoice.company.address, 12);
+
+  // Title
+  addText('Invoice', 18, 20);
+
+  // Company Section
   if (invoice.company.logo_url) {
-    addImage(invoice.company.logo_url);
+    addImage(invoice.company.logo_url, 20);
   }
+  addText(invoice.company.name, 18, 6);
+  if (invoice.company.address) addText(invoice.company.address, 12, 4);
 
-  addText(invoice.client.name, 14);
-  if (invoice.client.address) addText(invoice.client.address, 12);
-  if (invoice.client.email) addText(invoice.client.email, 12);
+  // Client Section
+  addText('Bill To:', 14, 12);
+  addText(invoice.client.name, 14, 4);
+  if (invoice.client.address) addText(invoice.client.address, 12, 4);
+  if (invoice.client.email) addText(invoice.client.email, 12, 4);
 
+  // Line Items
+  addText('Line Items', 14, 16);
   invoice.line_items.forEach((item) => {
-    addText(`${item.name} - ${item.description}, Quantity : ${item.quantity} - ${item.total}`, 12, 8);
+    addText(`${item.name} - ${item.description}`, 12, 2);
+    addText(`Qty: ${item.quantity} | Total: ${item.total.toFixed(2)}`, 12, 8);
   });
 
-  addText(`Totals: ${invoice.total.subtotal}`, 14);
-  addText(`Tax: ${invoice.total.tax_rate}`, 14);
-  addText(`GrandTotal: ${invoice.total.grand_total}`, 14);
+  // Totals
+  addText('Totals', 14, 16);
+  addText(`Subtotal: ${invoice.total.subtotal.toFixed(2)}`, 12, 4);
+  addText(`Tax: ${invoice.total.tax_rate * 100}%: ${invoice.total.tax_amount.toFixed(2)}`, 12, 4);
+  addText(`GrandTotal: ${invoice.total.grand_total.toFixed(2)}`, 14, 12);
 
   if (invoice.payment_methods) {
+    addText('Payment Methods:', 14, 16);
     invoice.payment_methods.forEach((method) => {
       const note: string = method.details.note ? `- ${method.details.note}` : '';
-      addText(`${method.details.name}${note}`, 12, 10);
+      addText(`${method.details.name}${note}`, 12, 6);
     });
   }
 

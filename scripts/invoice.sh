@@ -45,7 +45,7 @@ JSON='{
 
 # Send POST Request and save PDF, capture status code
 
-STATUS=(curl -s -o "$OUTPUT" -w "%{http_code}" \
+STATUS=$(curl -s -o "$OUTPUT" -w "%{http_code}" \
     -X POST "$URL" \
     -H "Content-Type: application/json" \
     --data "$JSON")
