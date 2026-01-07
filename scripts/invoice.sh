@@ -43,12 +43,17 @@ JSON='{
     }
 }'
 
-# Send POST Request and save PDF
+# Send POST Request and save PDF, capture status code
 
-curl -X POST "$URL" \
+STATUS=(curl -X POST "$URL" \
     -H "Content-Type: application/json" \
     --data "$JSON" \
-    --output "$OUTPUT"
+    --output "$OUTPUT")
 
-echo "PDF saved to $OUTPUT"
+echo "HTTP status: $STATUS"
+if [ "$STATUS" -eq 200 ]; then
+    echo "PDF saved to $OUTPUT"
+else
+    echo "Request failed, PDF not saved"
+fi
 

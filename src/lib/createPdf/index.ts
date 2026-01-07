@@ -65,7 +65,6 @@ async function createPdf(options: createPdfOptions): Promise<Uint8Array> {
   try {
     const documentSettings: PdfDocumentSettings = { ...defaultSettings, ...options.document_settings };
     const config = await configure(documentSettings);
-
     const textOptions = buildTextOptions(config.page, documentSettings, config.font);
 
     if (options.document_type === 'invoice')  {

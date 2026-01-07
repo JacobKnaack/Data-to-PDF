@@ -15,15 +15,16 @@ describe('PDF Generation Service', () => {
     const response = await request(server)
       .post('/pdf')
       .send(rootTemplate)
-      .set('Content-Type', 'application/json');
-
-    const { text } = await fromBuffer(Buffer.from(response.body));
+      .set('Content-Type', 'application/json')
 
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toBe('application/pdf');
 
     const isPDF = response.body.toString('utf8', 0,4) === '%PDF';
     expect(isPDF).toBe(true);
+
+    const pdfBuffer: Buffer = response.body;
+    const { text } = await fromBuffer(pdfBuffer);
     expect(text).toContain('Here is some test text');
   });
 

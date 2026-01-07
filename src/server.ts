@@ -7,10 +7,14 @@ const app = express();
 app.use(express.json());
 
 app.post('/pdf', handleParamValidation, async (req: Request, res: Response, next: NextFunction) => {
-  const pdf = await createPdf(req.body);
-
+  const pdfBytes: Uint8Array = await createPdf(req.body);
+  const pdfBuffer = Buffer.from(pdfBytes);
+  const fileName = req.body.document_settings && req.body.document_settings.file_name
+    ? req.body.document_settings.file_name
+    : 'document';
   res.setHeader('Content-Type', 'application/pdf');
-  res.send(Buffer.from(pdf));
+  res.setHeader('Content-Disposition', `attachment; filename:"${fileName}"`);
+  res.end(pdfBuffer);
 });
 
 app.use(handleNotFound);
