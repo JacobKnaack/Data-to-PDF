@@ -45,10 +45,10 @@ JSON='{
 
 # Send POST Request and save PDF, capture status code
 
-STATUS=(curl -X POST "$URL" \
+STATUS=(curl -s -o "$OUTPUT" -w "%{http_code}" \
+    -X POST "$URL" \
     -H "Content-Type: application/json" \
-    --data "$JSON" \
-    --output "$OUTPUT")
+    --data "$JSON")
 
 echo "HTTP status: $STATUS"
 if [ "$STATUS" -eq 200 ]; then
