@@ -29,6 +29,7 @@ export interface PaymentMethod {
   type: string;
   details: {
     name: string;
+    bank_name?: string;
     account_name?: string;
     account_number?: string;
     routing_number?: string;
@@ -39,6 +40,10 @@ export interface PaymentMethod {
 }
 
 export interface Invoice extends Document {
+  invoice_number?: string;
+  date_issued?: string;
+  date_due?: string;
+  currency_char?: string;
   company: {
     name: string;
     address?: string;
@@ -57,6 +62,7 @@ export interface Invoice extends Document {
     grand_total: number;
   };
   payment_methods?: PaymentMethod[];
+  signature?: string;
 };
 
 export interface Form extends Document {
