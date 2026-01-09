@@ -22,6 +22,10 @@ A document that lists information about services and prices between someone maki
 
 ```json
 {
+    "invoice_number": "OPTIONAL_INCOIVE_ID",
+    "date_issued": "DATE_STRING",
+    "date_due": "DATE_STRING",
+    "currency_char": "CURRENCY_SYMBOL",
     "company" : {
         "name": "COMPANY_NAME",
         "address": "COMPANY_ST_ADDRESS",
@@ -37,7 +41,7 @@ A document that lists information about services and prices between someone maki
             "name": "ITEM_NAME",
             "desciption": "ITEM_DESCRIPTION",
             "quantity": 10,
-            "unit_price": 10,
+            "price": 10,
             "total": 10,
             "adjustments": [
                 {

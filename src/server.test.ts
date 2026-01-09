@@ -52,7 +52,7 @@ describe('PDF Generation Service', () => {
         name: 'Test Line Item',
         description: 'Test Description',
         quantity: 1,
-        unit_price: 10,
+        price: 10,
         total: 10,
       }],
       total: {

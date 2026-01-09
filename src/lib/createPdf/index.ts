@@ -4,6 +4,7 @@ import { PdfDocumentSettings, configure, DocumentConfiguration } from './pdfConf
 import buildInvoice from './buildInvoice';
 import processText, { TextLine, TextOptions, buildTextOptions } from '../processText';
 import processImage, { ImageOptions, ImageValues } from '../processImage';
+import drawTable from '../drawTable';
 
 export interface createPdfOptions extends Document {}
 
@@ -68,8 +69,8 @@ async function createPdf(options: createPdfOptions): Promise<Uint8Array> {
     const textOptions = buildTextOptions(config.page, documentSettings, config.font);
 
     if (options.document_type === 'invoice')  {
-      const invoiceText = buildInvoice(options as Invoice, config);
-      invoiceText.forEach((options) => {
+      const invoiceContent = buildInvoice(options as Invoice, config);
+      invoiceContent.forEach((options) => {
         if (options.text) createTextLines(options.text, options, config);
         if (options.url) {
           const imageOptions: ImageOptions = {
@@ -79,6 +80,9 @@ async function createPdf(options: createPdfOptions): Promise<Uint8Array> {
             height: config.content.height,
           }
           createImageBlocks(options.url, imageOptions, config);
+        }
+        if (options.table) {
+          drawTable(options.table);
         }
       });
     }

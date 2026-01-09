@@ -1,10 +1,12 @@
 import { Invoice } from '../../templates';
 import { TextOptions } from '../processText';
 import { DocumentConfiguration } from './pdfConfig';
+import { TableOptions, TableColumn, TableRow } from '../drawTable';
 
 interface InvoiceContent extends TextOptions {
   text?: string;
   url?: string;
+  table?: TableOptions;
 }
 
 export default function buildInvoice(
@@ -60,11 +62,33 @@ export default function buildInvoice(
   if (invoice.client.email) addText(invoice.client.email, 12, 4);
 
   // Line Items
-  addText('Line Items', 14, 16);
-  invoice.line_items.forEach((item) => {
-    addText(`${item.name} - ${item.description}`, 12, 2);
-    addText(`Qty: ${item.quantity} | Total: ${item.total.toFixed(2)}`, 12, 8);
+  const columns: TableColumn[] = [
+    { title: 'Description', x: 0, width: 200 },
+    { title: 'Unit Price', x: 200, width: 100 },
+    { title: 'Qty', x: 300, width: 50 },
+    { title: 'Total', x: 350, width: 100},
+  ];
+  const rows: TableRow[] = invoice.line_items.map((item) => ({
+    values: [
+      item.name,
+      `${item.price.toFixed(2)}`,
+      item.quantity.toString(),
+      `${item.total.toFixed(2)}`,
+    ],
+  }));
+  const rowHeight = 24;
+  const tableHeight = rowHeight * (rows.length + 1);
+  invoiceContent.push({
+    table: { page: config.page, startX: 50, startY: cursorY, rowHeight, columns, rows },
+    font: config.font,
+    fontSize: 12,
+    width: 500,
+    height: 500,
+    startY: cursorY,
+    margin: 4,
   });
+  // advance cursorY for each table row
+  cursorY -= tableHeight + 20;
 
   // Totals
   addText('Totals', 14, 16);

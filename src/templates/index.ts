@@ -20,7 +20,7 @@ export interface InvoiceLineItem {
   name: string;
   description: string;
   quantity: number;
-  unit_price: number;
+  price: number;
   total: number;
   adjustments?: LineItemAdjustment[];
 }
