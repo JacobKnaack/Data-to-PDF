@@ -37,6 +37,7 @@ export default function drawTable(options: TableOptions) {
     x: startX,
     y: cursorY - rowHeight,
     width: tableWidth,
+    height: rowHeight,
     color: rgb(0.9,0.9,0.9),
   });
 

@@ -83,7 +83,7 @@ export default function buildInvoice(
     font: config.font,
     fontSize: 12,
     width: 500,
-    height: 500,
+    height: tableHeight,
     startY: cursorY,
     margin: 4,
   });
